@@ -1,7 +1,7 @@
 # README #
 
 
-* Quick summary: RPC socket library and a sample to use it.
+* Quick summary: (Non-Sucking) RPC socket library and a sample to use it.
 * Version: 1.0.0.0
 
 * Refer to bobdust.rpc.helloworld for the sample.
