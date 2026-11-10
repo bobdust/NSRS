@@ -1,6 +1,7 @@
 package bobdust.sockets;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -60,7 +61,7 @@ public abstract class RequestorFactory<T> {
 		}
 		
 		ctClass.writeFile();
-		Class<?> proxyClass = ctClass.toClass();
+		Class<?> proxyClass = ctClass.toClass(MethodHandles.lookup());
 		
 		@SuppressWarnings("unchecked")
 		T instance = (T)proxyClass.getConstructor(new Class[]{String.class, int.class}).newInstance(host, port);		
