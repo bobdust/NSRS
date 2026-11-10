@@ -5,24 +5,9 @@ import java.util.concurrent.*;
 
 class ChannelContext {
 	private static ConcurrentHashMap<UUID, ChannelContext> contexts;
-	private static ConcurrentHashMap<String, UUID> tokens;
 	static
 	{
 		contexts = new ConcurrentHashMap<UUID, ChannelContext>();
-		tokens = new ConcurrentHashMap<String, UUID>();
-	}
-	
-	public static ChannelContext getCurrent()
-	{
-		long threadId = Thread.currentThread().getId();
-		UUID token = tokens.get(String.valueOf(threadId));
-		return contexts.get(token);
-	}
-	
-	private static void setCurrent(UUID token)
-	{
-		long threadId = Thread.currentThread().getId();
-		tokens.put(String.valueOf(threadId), token);
 	}
 	
 	public static ChannelContext get(UUID token)
@@ -38,7 +23,6 @@ class ChannelContext {
 	{
 		ChannelContext context = new ChannelContext(token);
 		contexts.put(token, context);
-		setCurrent(token);
 		return context;
 	}
 	

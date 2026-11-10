@@ -19,11 +19,6 @@ class CommandPipeline extends PipelineDecorator {
 	protected BinarySequence deserialize(byte[] bytes) {
 		return deserializer.deserialize(bytes);
 	}
-	
-	protected UUID CreateDataToken()
-	{
-		return ChannelContext.getCurrent().getToken();
-	}
 
 	@Override
 	protected void receiveCompleted(UUID token) throws IOException {
@@ -47,13 +42,14 @@ class CommandPipeline extends PipelineDecorator {
 	public BinarySequence post(BinarySequence request) throws InterruptedException, IOException, TimeoutException
 	{
 		ChannelContext context = ChannelContext.create();
-		send(request);
+		var token = context.getToken();
+		send(request, token);
 		Object lock = context.getWaitHandle();
 		synchronized(lock)
 		{
 			lock.wait(TIMEOUT);
 		}
-		BinarySequence response = receive(context.getToken());
+		BinarySequence response = receive(token);
 		if(response == null)
 		{
 			throw(new TimeoutException());

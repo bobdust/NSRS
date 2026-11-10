@@ -93,7 +93,7 @@ abstract class PipelineBase implements Pipeline {
 			BinarySequence data = receive(token);
 			if(data != null)
 			{
-				receiver.receive(this, data);
+				receiver.receive(this, data, token);
 			}
 		}
 	}
@@ -127,12 +127,11 @@ abstract class PipelineBase implements Pipeline {
 	}
 
 	@Override
-	public void send(BinarySequence data) throws IOException {
+	public void send(BinarySequence data, UUID token) throws IOException {
 		byte[] bytes = data.toBytes();
 		int dataSize = BUFFER_SIZE - Package.HEADER_SIZE;
 		int length = bytes.length;
 		int count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
-		UUID token = CreateDataToken();
 		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 		for(int index = 1; index <= count; index++)
 		{

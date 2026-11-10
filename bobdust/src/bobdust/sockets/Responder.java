@@ -35,7 +35,7 @@ public abstract class Responder<TCommander> {
 				);
 				pipeline.setReceiver(new PipelineReceiver(){
 					@Override
-					public void receive(Pipeline pipeline, BinarySequence data) throws IOException {
+					public void receive(Pipeline pipeline, BinarySequence data, UUID token) throws IOException {
 						CommandResult result;
 						Command command = (Command)data;
 						try
@@ -85,7 +85,7 @@ public abstract class Responder<TCommander> {
 								result = command.doThrow(e);
 							}
 						}
-						pipeline.send(result);
+						pipeline.send(result, token);
 					}});
 				pipeline.open();
 				pipelines.add(pipeline);
