@@ -5,7 +5,7 @@
 * Version: 1.0.0.0
 
 * Refer to bobdust.rpc.helloworld for the sample.
-* Dependencies: JRE 25, javassist.
+* Dependencies: JRE 25, javassist 3.33.0-GA.
 
 * Please contact <ceillingbob@gmail.com> for any enqueries.
 
