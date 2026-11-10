@@ -5,9 +5,9 @@
 * Version: 1.0.0.0
 
 * Refer to bobdust.rpc.helloworld for the sample.
-* Dependencies: JRE 7, javassist.
+* Dependencies: JRE 25, javassist.
 
-* Please contact ceillingbob@gmail.com for any enqueries.
+* Please contact <ceillingbob@gmail.com> for any enqueries.
 
 > OOP is the bone of my framework
 > 
