@@ -16,7 +16,7 @@ class CommandResultImpl extends CommandBase implements CommandResult {
 
 	public CommandResultImpl(String operationName)
 	{
-		super(operationName);
+		super(null, operationName);
 	}
 	
 	public CommandResultImpl(String operationName, Object returnValue)

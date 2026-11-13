@@ -1,11 +1,11 @@
 package bobdust.sockets;
 
 interface Command extends BinarySequence {
-
+	String getContractType();
 	String getOperationName();
-	Object[] getParameters();
+	Parameter[] getParameters();
 	CommandResult doReturn();
 	CommandResult doReturn(Object value);
-	CommandResult doThrow(Throwable throwable);
+	CommandResult doThrow(Exception exception);
 	
 }

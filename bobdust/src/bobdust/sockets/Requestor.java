@@ -28,11 +28,14 @@ abstract class Requestor {
 		return result;
 	}
 	
-	protected Object invoke(Object[] values) throws Exception
+	protected Object invoke(Object[] values, String contractType, String methodName, String[] parameterNames, String[] parameterTypes) throws Exception
 	{
-		StackTraceElement stackTrace = Thread.currentThread().getStackTrace()[2];
-		String methodName = stackTrace.getMethodName();
-		Command command = new CommandImpl(methodName, values);
+		Parameter[] parameters = new Parameter[values.length];
+		for(int i = 0; i < values.length; i++)
+		{
+			parameters[i] = new Parameter(parameterNames[i], values[i], parameterTypes[i]);
+		}
+		Command command = new CommandImpl(contractType, methodName, parameters);
 		CommandResult result = send(command);
 		Object returnValue = result.getReturnValue(); 
 		if(returnValue != null)

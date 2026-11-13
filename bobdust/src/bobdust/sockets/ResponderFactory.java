@@ -1,6 +1,7 @@
 package bobdust.sockets;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public abstract class ResponderFactory<T> {
 	
@@ -8,8 +9,8 @@ public abstract class ResponderFactory<T> {
 	{
 		Responder<T> responder = new Responder<T>(port){
 			@Override
-			protected T getCommander() throws InstantiationException, IllegalAccessException {
-				return clazz.newInstance();
+			protected T getCommander() throws InstantiationException, IllegalAccessException, InstantiationException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
+				return clazz.getDeclaredConstructor().newInstance();
 			}};
 		return responder;
 	}

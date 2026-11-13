@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javassist.*;
 
@@ -36,15 +37,22 @@ public abstract class RequestorFactory<T> {
 		for(Method m : clazz.getMethods())
 		{
 			List<CtClass> parameterTypes = new ArrayList<CtClass>();
-			for(Class<?> c : m.getParameterTypes())
+			var paramTypes = m.getParameterTypes();
+			for(Class<?> c : paramTypes)
 			{
 				parameterTypes.add(pool.get(c.getName()));
 			}
 			CtClass[] types = new CtClass[parameterTypes.size()];
 			parameterTypes.toArray(types);
-			CtMethod methodContract = interfaceClass.getDeclaredMethod(m.getName(), types);
+			var methodName = m.getName();
+			CtMethod methodContract = interfaceClass.getDeclaredMethod(methodName, types);
 			CtClass returnType = methodContract.getReturnType();
-			String body = "super.invoke($args);";
+			String body = "super.invoke($args, \"%s\", \"%s\", new String[]{%s}, new String[]{%s});";
+			body = String.format(body,
+				clazz.getName(),
+				methodName,
+				Arrays.stream(m.getParameters()).map(p -> String.format("\"%s\"", p.getName())).collect(Collectors.joining(", ")),
+				Arrays.stream(paramTypes).map(c -> String.format("\"%s\"", c.getName())).collect(Collectors.joining(", ")));
 			if(!returnType.equals(CtClass.voidType))
 			{
 				body = String.format("return ($r)%s", body);

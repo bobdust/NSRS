@@ -16,6 +16,8 @@ public class Caller {
 		GreetingAssistant assistant = RequestorFactory.get(GreetingAssistant.class, host, port);
 		String words = assistant.hello();
 		System.out.println(words);
+		words = assistant.welcome(null, new Greeting("Cuckoo!"));
+		System.out.println(words);
 	}
 
 }

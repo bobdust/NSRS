@@ -8,8 +8,8 @@ abstract class BinarySequenceBase {
 	{
 		T instance;
 		try {
-			instance = clazz.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+			instance = clazz.getDeclaredConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | java.lang.reflect.InvocationTargetException e) {
 			instance = null;
 		}
 		if(instance != null)

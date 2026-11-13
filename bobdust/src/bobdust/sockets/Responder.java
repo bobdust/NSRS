@@ -12,13 +12,13 @@ public abstract class Responder<TCommander> {
 	private ServerSocket listener;
 	private Task listenTask;
 	private List<Pipeline> pipelines;
-	private Map<String, TCommander> commanders;
+	private Map<Map.Entry<String, String>, TCommander> commanders;
 	
 	protected Responder(int port) throws IOException
 	{
 		listener = new ServerSocket(port);
 		pipelines = Collections.synchronizedList(new ArrayList<Pipeline>());
-		commanders = Collections.synchronizedMap(new HashMap<String, TCommander>());
+		commanders = Collections.synchronizedMap(new HashMap<Map.Entry<String, String>, TCommander>());
 		listenTask = new Task(){
 
 			@Override
@@ -41,7 +41,7 @@ public abstract class Responder<TCommander> {
 						try
 						{
 							TCommander commander;
-							String key = pipeline.getId();
+							Map.Entry<String, String> key = Map.entry(pipeline.getId(), command.getContractType());
 							synchronized(commanders)
 							{
 								if(commanders.containsKey(key))
@@ -54,17 +54,17 @@ public abstract class Responder<TCommander> {
 									commanders.put(key, commander);
 								}
 							}
-							Object[] parameters = command.getParameters();
+							var parameters = command.getParameters();
 							List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
-							for(Object o : parameters)
+							for(Parameter o : parameters)
 							{
-								parameterTypes.add(o.getClass());
+								parameterTypes.add(Class.forName(o.type()));
 							}
 							Class<?>[] types = new Class<?>[parameterTypes.size()];
 							parameterTypes.toArray(types);
 							Method method = commander.getClass().getMethod(
 									command.getOperationName(), types);
-							Object returnValue = method.invoke(commander, parameters);
+							Object returnValue = method.invoke(commander, Arrays.stream(parameters).map(x -> x.value()).toArray());
 							if(method.getReturnType() == void.class)
 							{
 								result = command.doReturn();
@@ -78,7 +78,7 @@ public abstract class Responder<TCommander> {
 						{
 							if(e instanceof InvocationTargetException)
 							{
-								result = command.doThrow(e.getCause());
+								result = command.doThrow(e);
 							}
 							else
 							{
@@ -97,7 +97,7 @@ public abstract class Responder<TCommander> {
 			}};
 	}
 	
-	protected abstract TCommander getCommander() throws InstantiationException, IllegalAccessException;
+	protected abstract TCommander getCommander() throws InstantiationException, IllegalAccessException, InstantiationException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException;
 	
 	public void start()
 	{

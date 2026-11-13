@@ -10,10 +10,15 @@ abstract class CommandBase extends BinarySequenceBase
 	 */
 	private static final long serialVersionUID = 5008581139377401105L;
 	
+	protected String contractType;
 	protected String operationName;
 
 	public String getOperationName() {
 		return operationName;
+	}
+
+	public String getContractType() {
+		return contractType;
 	}
 	
 	protected CommandBase()
@@ -21,13 +26,15 @@ abstract class CommandBase extends BinarySequenceBase
 		
 	}
 	
-	public CommandBase(String operationName)
+	public CommandBase(String contractType, String operationName)
 	{
+		this.contractType = contractType;
 		this.operationName = operationName;
 	}
 	
 	protected void copyFrom(CommandBase command)
 	{
+		contractType = command.getContractType();
 		operationName = command.getOperationName();
 	}
 	

@@ -6,16 +6,16 @@ class CommandImpl extends CommandBase implements Command {
 	 * 
 	 */
 	private static final long serialVersionUID = -6501789125198521864L;
-	private Object[] parameters;
+	private Parameter[] parameters;
 	
 	public CommandImpl()
 	{
 		super();
 	}
 	
-	public CommandImpl(String operationName, Object[] parameters)
+	public CommandImpl(String contractType,String operationName, Parameter[] parameters)
 	{
-		super(operationName);
+		super(contractType, operationName);
 		this.parameters = parameters;
 	}
 	
@@ -28,7 +28,7 @@ class CommandImpl extends CommandBase implements Command {
 	}
 		
 	@Override
-	public Object[] getParameters() {
+	public Parameter[] getParameters() {
 		return parameters;
 	}
 
@@ -43,7 +43,7 @@ class CommandImpl extends CommandBase implements Command {
 	}
 
 	@Override
-	public CommandResult doThrow(Throwable exception) {
+	public CommandResult doThrow(Exception exception) {
 		return new CommandResultImpl(operationName, exception);
 	}
 

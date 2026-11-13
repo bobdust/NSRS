@@ -7,4 +7,12 @@ public class GreetingAssistantImpl implements GreetingAssistant {
 		return "Hello, world!";
 	}
 
+	@Override
+	public String welcome(String name, Greeting greeting) {
+		if (name == null || name.isEmpty()) {
+			return greeting.message();
+		}
+		return "Welcome, " + name + "!";
+	}
+
 }
