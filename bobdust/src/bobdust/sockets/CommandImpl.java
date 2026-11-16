@@ -43,7 +43,7 @@ class CommandImpl extends CommandBase implements Command {
 	}
 
 	@Override
-	public CommandResult doThrow(Exception exception) {
+	public CommandResult doThrow(Throwable exception) {
 		return new CommandResultImpl(operationName, exception);
 	}
 

@@ -4,6 +4,6 @@ interface CommandResult extends BinarySequence {
 
 	String getOperationName();
 	Object getReturnValue();
-	Exception getException();
+	Throwable getException();
 	
 }

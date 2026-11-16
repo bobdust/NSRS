@@ -10,7 +10,10 @@ public class GreetingAssistantImpl implements GreetingAssistant {
 	@Override
 	public String welcome(String name, Greeting greeting) {
 		if (name == null || name.isEmpty()) {
-			return greeting.message();
+			if (greeting != null) {
+				return greeting.message();
+			}
+			throw new IllegalArgumentException("Name cannot be null or empty");
 		}
 		return "Welcome, " + name + "!";
 	}

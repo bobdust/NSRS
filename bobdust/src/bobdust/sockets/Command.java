@@ -6,6 +6,6 @@ interface Command extends BinarySequence {
 	Parameter[] getParameters();
 	CommandResult doReturn();
 	CommandResult doReturn(Object value);
-	CommandResult doThrow(Exception exception);
+	CommandResult doThrow(Throwable exception);
 	
 }

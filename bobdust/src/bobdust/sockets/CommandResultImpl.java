@@ -7,7 +7,7 @@ class CommandResultImpl extends CommandBase implements CommandResult {
 	 */
 	private static final long serialVersionUID = 3869099192752520136L;
 	private Object returnValue;
-	private Exception exception;
+	private Throwable exception;
 	
 	public CommandResultImpl()
 	{
@@ -25,7 +25,7 @@ class CommandResultImpl extends CommandBase implements CommandResult {
 		this.returnValue = returnValue;
 	}
 	
-	public CommandResultImpl(String operationName, Exception exception)
+	public CommandResultImpl(String operationName, Throwable exception)
 	{
 		this(operationName);
 		this.exception = exception;
@@ -45,7 +45,7 @@ class CommandResultImpl extends CommandBase implements CommandResult {
 	}
 
 	@Override
-	public Exception getException() {
+	public Throwable getException() {
 		return exception;
 	}
 

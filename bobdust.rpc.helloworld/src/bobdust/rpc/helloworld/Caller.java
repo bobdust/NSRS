@@ -18,6 +18,7 @@ public class Caller {
 		System.out.println(words);
 		words = assistant.welcome(null, new Greeting("Cuckoo!"));
 		System.out.println(words);
+		words = assistant.welcome(null, null);
 	}
 
 }

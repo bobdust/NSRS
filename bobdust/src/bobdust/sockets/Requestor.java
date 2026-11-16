@@ -28,7 +28,7 @@ abstract class Requestor {
 		return result;
 	}
 	
-	protected Object invoke(Object[] values, String contractType, String methodName, String[] parameterNames, String[] parameterTypes) throws Exception
+	protected Object invoke(Object[] values, String contractType, String methodName, String[] parameterNames, String[] parameterTypes) throws Throwable
 	{
 		Parameter[] parameters = new Parameter[values.length];
 		for(int i = 0; i < values.length; i++)
@@ -44,7 +44,7 @@ abstract class Requestor {
 		}
 		else
 		{
-			Exception exception = result.getException();
+			var exception = result.getException();
 			if(exception != null)
 			{
 				throw(exception);
