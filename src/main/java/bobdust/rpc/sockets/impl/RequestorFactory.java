@@ -68,7 +68,7 @@ public abstract class RequestorFactory<T> {
 			ctClass.addMethod(method);
 		}
 		
-		ctClass.writeFile();
+		// ctClass.writeFile();
 		Class<?> proxyClass = ctClass.toClass(MethodHandles.lookup());
 		
 		@SuppressWarnings("unchecked")

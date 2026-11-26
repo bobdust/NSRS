@@ -124,7 +124,7 @@ abstract class ResponderImpl implements Responder {
 class SingleResponderImpl<TCommander> extends ResponderImpl implements SingleResponder<TCommander> {
 	private final Class<TCommander> type;
 
-	public SingleResponderImpl(int port, Class<TCommander> type, Supplier<TCommander> factory) throws IOException {
+	protected SingleResponderImpl(int port, Class<TCommander> type, Supplier<TCommander> factory) throws IOException {
 		super(port);
 		this.type = type;
 		register(type, factory);
