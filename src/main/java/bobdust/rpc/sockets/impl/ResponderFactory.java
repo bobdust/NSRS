@@ -11,121 +11,124 @@ import javassist.*;
 
 public class ResponderFactory {
 	private static final ConcurrentHashMap<Integer, ResponderFactory> instances = new ConcurrentHashMap<Integer, ResponderFactory>();
-	
-	private static ResponderFactory getInstance(int port)
-	{
+
+	private static ResponderFactory getInstance(int port) {
 		var key = port;
 		ResponderFactory instance;
-		synchronized (instances)
-		{
-			if (instances.containsKey(key))
-			{
+		synchronized (instances) {
+			if (instances.containsKey(key)) {
 				instance = instances.get(key);
-			}
-			else
-			{
+			} else {
 				instance = new ResponderFactory();
 				instances.put(key, instance);
 			}
 		}
-		if (instance != null)
-		{
+		if (instance != null) {
 			return instance;
 		}
 		throw new IllegalStateException("Failed to create responder factory for port " + port);
 	}
 
-	public static <T> Responder get(final Class<T> clazz, int port) throws IOException
-	{
+	public static <T> Responder get(final Class<T> clazz, int port) throws IOException {
 		var instance = getInstance(port);
 		var responder = instance.get(port, clazz);
 		return responder;
 	}
 
+	public static Responder listen(int port) {
+		var instance = getInstance(port);
+		var responder = instance.get(port, p -> {
+			try {
+				return instance.buildResponder(p);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		return responder;
+	}
+
 	private final ConcurrentHashMap<Integer, Object> objects;
 
-	private ResponderFactory()
-	{
+	private ResponderFactory() {
 		objects = new ConcurrentHashMap<Integer, Object>();
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T> SingleResponder<T> get(int port, Class<T> clazz) throws IOException
-	{
+	public <T> SingleResponder<T> get(int port, Class<T> clazz) throws IOException {
 		instances.put(port, this);
 		return (SingleResponder<T>) get(port, p -> {
-			try
-			{
-				return buildResponder(p, clazz, ()-> {
-					try
-					{
+			try {
+				return buildResponder(p, clazz, () -> {
+					try {
 						return clazz.getDeclaredConstructor().newInstance();
-					}
-					catch (Exception e)
-					{
+					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
 				});
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		});
 	}
 
-	private Responder get(int port, IntFunction<Responder> buildResponder)
-	{
+	private Responder get(int port, IntFunction<Responder> buildResponder) {
 		var key = port;
 		Responder responder;
-		synchronized (objects)
-		{
-			if (objects.containsKey(key))
-			{
+		synchronized (objects) {
+			if (objects.containsKey(key)) {
 				responder = (Responder) objects.get(key);
-			}
-			else
-			{
+			} else {
 				responder = buildResponder.apply(port);
-				if (responder == null)
-				{
+				if (responder == null) {
 					throw new IllegalStateException("Failed to create responder for port " + port);
 				}
 				objects.put(key, responder);
 			}
 		}
-		if (responder != null)
-		{
+		if (responder != null) {
 			return responder;
 		}
 		throw new IllegalStateException("Failed to create responder for port " + port);
 	}
 
+	private Responder buildResponder(int port) throws NotFoundException, CannotCompileException, InstantiationException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException {
+		var proxyClass = extend(ResponderImpl.class, "%d".formatted(port));
+		var responder = (Responder) proxyClass.getDeclaredConstructor(int.class).newInstance(port);
+		return responder;
+	}
+
 	private <T> SingleResponder<T> buildResponder(int port, Class<T> clazz, Supplier<T> factory)
-		throws IOException,
-		NotFoundException,
-		CannotCompileException,
-		InstantiationException,
-		IllegalAccessException,
-		IllegalArgumentException,
-		InvocationTargetException,
-		NoSuchMethodException
-	{
+			throws IOException,
+			NotFoundException,
+			CannotCompileException,
+			InstantiationException,
+			IllegalAccessException,
+			IllegalArgumentException,
+			InvocationTargetException,
+			NoSuchMethodException {
+		var proxyClass = extend(SingleResponderImpl.class, clazz.getSimpleName());
+
+		@SuppressWarnings("unchecked")
+		var instance = (SingleResponder<T>) proxyClass.getDeclaredConstructor(int.class, Class.class, Supplier.class)
+				.newInstance(port, clazz, factory);
+
+		return instance;
+	}
+
+	private <TBase, T> Class<?> extend(Class<TBase> baseClass, String derivedSuffix)
+			throws NotFoundException, CannotCompileException {
 		var pool = ClassPool.getDefault();
-		var superClassName = SingleResponderImpl.class.getName();
-		var ctClass = pool.makeClass(String.format("%s_%s", superClassName, clazz.getSimpleName()));
-		var superClass = pool.get(SingleResponderImpl.class.getName());
+		var superClassName = baseClass.getName();
+		var ctClass = pool.makeClass(String.format("%s_%s", superClassName, derivedSuffix));
+		var superClass = pool.get(superClassName);
 		ctClass.setSuperclass(superClass);
 		var constructor = CtNewConstructor.make(
-				new CtClass[]{CtClass.intType, pool.get(Class.class.getName()), pool.get(Supplier.class.getName())},
-				new CtClass[]{pool.get(IOException.class.getName())},
+				new CtClass[] { CtClass.intType, pool.get(Class.class.getName()), pool.get(Supplier.class.getName()) },
+				new CtClass[] { pool.get(IOException.class.getName()) },
 				ctClass);
 		ctClass.addConstructor(constructor);
 		var proxyClass = ctClass.toClass(MethodHandles.lookup());
-
-		@SuppressWarnings("unchecked")
-		var instance = (SingleResponder<T>) proxyClass.getDeclaredConstructor(int.class, Class.class, Supplier.class).newInstance(port, clazz, factory);
-
-		return instance;
+		return proxyClass;
 	}
 }

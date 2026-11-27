@@ -94,17 +94,18 @@ abstract class ResponderImpl implements Responder {
 		return command.getContractType();
 	}
 
-	protected Object getCommander(String contractType)
-	{
-		if(!factories.containsKey(contractType))
-		{
-			throw new IllegalArgumentException(String.format("No factory registered for contract type %s", contractType));
+	protected Object getCommander(String contractType) {
+		if (!factories.containsKey(contractType)) {
+			throw new IllegalArgumentException(
+					String.format("No factory registered for contract type %s", contractType));
 		}
 		return factories.get(contractType).get();
 	}
 
 	public void start() {
-		listenTask.start();
+		if (listenTask.getState() != Thread.State.RUNNABLE) {
+			listenTask.start();
+		}
 	}
 
 	public void stop() throws IOException {
@@ -115,13 +116,14 @@ abstract class ResponderImpl implements Responder {
 		listener.close();
 	}
 
-	public <TContract, TImplementation extends TContract> Responder register(Class<TImplementation> clazz, Supplier<TImplementation> factory) {
+	public <TContract, TImplementation extends TContract> Responder register(Class<TContract> clazz,
+			Supplier<TImplementation> factory) {
 		factories.put(clazz.getName(), () -> factory.get());
 		return this;
 	}
 }
 
-class SingleResponderImpl<TCommander> extends ResponderImpl implements SingleResponder<TCommander> {
+abstract class SingleResponderImpl<TCommander> extends ResponderImpl implements SingleResponder<TCommander> {
 	private final Class<TCommander> type;
 
 	protected SingleResponderImpl(int port, Class<TCommander> type, Supplier<TCommander> factory) throws IOException {

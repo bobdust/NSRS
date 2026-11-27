@@ -4,6 +4,14 @@ import java.io.IOException;
 
 public abstract class Task {
 	private Thread.State state;
+
+	public Thread.State getState()
+	{
+		synchronized(this)
+		{
+			return this.state;
+		}
+	}
 	
 	public abstract void run() throws IOException;
 	

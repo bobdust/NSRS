@@ -1,32 +1,16 @@
 package bobdust.rpc.sockets.impl;
 
-import java.io.*;
-import java.net.*;
-import java.util.concurrent.*;
+import java.util.function.Function;
+
 import bobdust.rpc.sockets.*;
 
 abstract class Requestor {
 	
-	private CommandPipeline pipeline;
+	private final Function<Command, CommandResult> send;
 	
-	protected Requestor(String host, int port) throws UnknownHostException, IOException
+	protected Requestor(Function<Command, CommandResult> send)
 	{
-		Socket socket = new Socket(host, port);
-		pipeline = new CommandPipeline(
-				new SocketPipeline(socket), 
-				new CommandDeserializer(){
-
-					@Override
-					public CommandBase deserialize(byte[] bytes) {
-						return CommandResultImpl.fromBytes(CommandResultImpl.class, bytes);
-					}});
-		pipeline.open();
-	}
-	
-	protected CommandResult send(Command command) throws InterruptedException, IOException, TimeoutException
-	{
-		CommandResult result = (CommandResult)pipeline.post(command);
-		return result;
+		this.send = send;
 	}
 	
 	protected Object invoke(Object[] values, String contractType, String methodName, String[] parameterNames, String[] parameterTypes) throws Throwable
@@ -37,7 +21,7 @@ abstract class Requestor {
 			parameters[i] = new Parameter(parameterNames[i], values[i], parameterTypes[i]);
 		}
 		Command command = new CommandImpl(contractType, methodName, parameters);
-		CommandResult result = send(command);
+		CommandResult result = this.send.apply(command);
 		Object returnValue = result.getReturnValue(); 
 		if(returnValue != null)
 		{
